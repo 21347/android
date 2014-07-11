@@ -70,6 +70,10 @@ public class ErrorMessageAdapter {
                 } else if (result.getCode() == ResultCode.QUOTA_EXCEEDED) {
                     message = res.getString(R.string.failed_upload_quota_exceeded_text);
                     
+                } else if (result.getCode() == ResultCode.FORBIDDEN) {
+                    message = String.format(res.getString(R.string.forbidden_permissions),
+                            res.getString(R.string.uploader_upload_forbidden_permissions));
+
                 } else {
                     message = String.format(res.getString(R.string.uploader_upload_failed_content_single), 
                             ((UploadFileOperation) operation).getFileName());
