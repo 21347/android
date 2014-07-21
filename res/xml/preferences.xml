@@ -53,6 +53,7 @@
     </PreferenceCategory>
 	
 	<PreferenceCategory android:title="@string/prefs_category_more" android:key="more">
+	<Preference android:title="@string/prefs_local_base_path" android:key="local_base_path" android:summary="@string/prefs_local_base_path_info" />
     <Preference android:title="@string/prefs_help" android:key="help" />
     <Preference android:title="@string/prefs_recommend" android:key="recommend" />
     <Preference android:title="@string/prefs_feedback" android:key="feedback" />

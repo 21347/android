@@ -252,4 +252,12 @@
   <string name="copy_link">Link kopieren</string>
   <string name="clipboard_text_copied">In die Zwischenablage kopiert</string>
   <string name="error_cant_bind_to_operations_service">Kritischer Fehler: Operationen können nicht ausgeführt werden</string>
+  <string name="prefs_local_base_path">Lokaler Pfad</string>
+  <string name="prefs_change_base_path_title">Lokalen Pfad ändern</string>
+  <string name="prefs_change_base_path_error_toast">Konnte lokalen Pfad nicht ändern, möglicherweise fehlen die Berechtigungen?</string>
+  <string name="prefs_change_base_path_copied">Der lokale Pfad wurde geändert und alle Dateien sollten kopiert worden sein. Es wird empfohlen, ownCloud neu zu starten!</string>
+  <string name="prefs_change_base_path_info">Achtung: Wenn Sie diesen Pfad ändern, wird die App versuchen, alle Daten in den neuen Pfad zu kopieren. Es wird DRINGENDS empfohlen, die App danach neu zu starten!</string>
+  <string name="folder_new_error">Kann Ordner &quot;%s&quot; nicht erstellen!</string>
+  <string name="prefs_local_base_path_info">Ordner für lokalen Cache, etc.</string>
+  <string name="prefs_change_base_path_selected">Gewählter Pfad: %s</string>
 </resources>

@@ -280,4 +280,12 @@
 	<string name="network_error_connect_timeout_exception">An error occurred while waiting for the server, the operation couldn\'t have been done</string>
 	<string name="network_host_not_available">The operation couldn\'t be completed, server is unavailable</string>
 	
+	<string name="prefs_local_base_path_info">Where to store all local data</string>
+	<string name="prefs_local_base_path">Local base path</string>
+	<string name="prefs_change_base_path_info">Warning: if you change this path, the App will try to copy all files over, but you REALLY should restart the App afterwards!</string>
+	<string name="prefs_change_base_path_title">Change base Path</string>
+	<string name="prefs_change_base_path_error_toast">Could not change the base path, maybe you have insufficient permissions?</string>
+	<string name="prefs_change_base_path_copied">All files should haven been copied. It is recommended to restart ownCloud!</string>
+	<string name="folder_new_error">Failed to create folder &quot;%s&quot;!</string>
+	<string name="prefs_change_base_path_selected">Selected path: %s</string>
 </resources>

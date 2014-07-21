@@ -25,21 +25,36 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
 import com.owncloud.android.authentication.AccountUtils;
 import com.owncloud.android.db.DbHandler;
 import com.owncloud.android.utils.DisplayUtils;
 import com.owncloud.android.utils.Log_OC;
+import com.owncloud.android.ui.dialog.DirectoryChooserDialog;
+import com.owncloud.android.utils.FileStorageUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.DialogInterface;
 
 
 /**
@@ -55,6 +70,7 @@ public class Preferences extends SherlockPreferenceActivity {
     private CheckBoxPreference pCode;
     //private CheckBoxPreference pLogging;
     //private Preference pLoggingHistory;
+	private Preference basePath;
     private Preference pAboutApp;
 
 
@@ -99,6 +115,120 @@ public class Preferences extends SherlockPreferenceActivity {
         
 
         PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference("more");
+		
+
+        basePath = (Preference) findPreference("local_base_path");
+        if (basePath != null)
+        {
+            basePath.setOnPreferenceClickListener(new OnPreferenceClickListener()
+            {
+                private String m_chosenDir = FileStorageUtils.getBasePath(Preferences.this);
+                private boolean m_newFolderEnabled = true;
+                private boolean changed = false;
+                
+                private void doChangeDir()
+                {
+                    /*  try
+                    {*/
+                        // old Path
+                        File oldPath = new File(FileStorageUtils.getBasePath(Preferences.this));
+                        // new Path?
+                        File newPath = new File(m_chosenDir);
+                        
+                        changed = !oldPath.equals(newPath);
+                        
+                        if (changed)
+                        {
+                            Log.v("owncloud", "Path changed, writing new path to the preferences...");
+                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(Preferences.this);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString("local_base_path", m_chosenDir);
+                            editor.commit();
+
+                            //TODO: Show progress...
+                            try
+                            {
+                                FileStorageUtils.copyDirectory(oldPath, newPath);
+
+                                new AlertDialog.Builder(Preferences.this)
+                                    .setTitle(R.string.prefs_change_base_path_title)
+                                    .setMessage(R.string.prefs_change_base_path_copied)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show();
+                            }
+                            catch (IOException e)
+                            {
+                                new AlertDialog.Builder(Preferences.this)
+                                .setTitle(R.string.prefs_change_base_path_title)
+                                .setMessage(R.string.prefs_change_base_path_error_toast)
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setPositiveButton(android.R.string.ok, null)
+                                .show();
+                            }
+                        }
+                 /*   }
+                    catch (Exception e)
+                    {
+                        Log.e("owncloud", "Error checking/changing the base path.");
+                        Log.e("owncloud", e.toString());
+                        Toast.makeText(
+                                Preferences.this, R.string.prefs_change_base_path_error_toast, Toast.LENGTH_LONG).show();
+                    }*/
+                }
+                
+                private void doShowDialog()
+                {
+                    // Create DirectoryChooserDialog and register a callback 
+                    DirectoryChooserDialog directoryChooserDialog = 
+                    new DirectoryChooserDialog(Preferences.this, "/",
+                        new DirectoryChooserDialog.ChosenDirectoryListener() 
+                    {
+                        @Override
+                        public void onChosenDir(String chosenDir) 
+                        {
+                            m_chosenDir = chosenDir;
+                            changed = true;
+                            String message = Preferences.this.getResources().getString(R.string.prefs_change_base_path_selected);
+                            Toast.makeText(
+                                    Preferences.this, String.format(message, chosenDir), Toast.LENGTH_LONG).show();
+                            
+                            doChangeDir();
+                        }
+                    }); 
+                    // Toggle new folder button enabling
+                    directoryChooserDialog.setNewFolderEnabled(m_newFolderEnabled);
+                    // Load directory chooser dialog for initial 'm_chosenDir' directory.
+                    // The registered callback will be called upon final directory selection.
+                    directoryChooserDialog.chooseDirectory(m_chosenDir);
+                    m_newFolderEnabled = ! m_newFolderEnabled;
+                }
+
+                @Override
+                public boolean onPreferenceClick(Preference preference)
+                {
+                    // First ask the user if He/She's really sure...
+                    new AlertDialog.Builder(Preferences.this)
+                        .setTitle(R.string.prefs_change_base_path_title)
+                        .setMessage(R.string.prefs_change_base_path_info)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) { 
+                                doShowDialog();
+                            }
+                         })
+                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) { 
+                                return;
+                            }
+                         })
+                         .show();
+                    
+                    return true;
+                }
+            });
+        }
+        
         
         boolean helpEnabled = getResources().getBoolean(R.bool.help_enabled);
         Preference pHelp =  findPreference("help");
